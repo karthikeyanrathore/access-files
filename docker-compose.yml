@@ -1,0 +1,26 @@
+---
+version: "3.7"
+
+services:
+
+  access_files-db:
+    hostname: access_files-db
+    container_name: access_files-db
+    image: postgres:12.3-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      # Persist data that is stored in db after
+      # container is shutdown.
+      - access_files-db_data:/var/lib/postgresql/data/
+    # networks:
+    #   - access_files-net
+    ports:
+      - 5432:5432
+
+  
+volumes:
+  access_files-db_data:
