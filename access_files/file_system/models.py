@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
 
 class Project(models.Model):
 
@@ -12,7 +11,7 @@ class Project(models.Model):
         ("SD", "Staff documents"),
         ("ED", "Exam documents"),
         ("STD", "Student documents"),
-        # docs from received from other schools/companies/organizations.
+        # docs received from other schools/companies/organizations.
         ("EXD", "External documents"),
         ("MD", "Marketing documents")
     )
@@ -45,7 +44,11 @@ class File(models.Model):
 
 
 
+# class FileAccessLog():
+#     pass
 
-# 
+
+# docker-compose up
 # python manage.py makemigrations file_system
 # python manage.py migrate --run-syncdb
+# python manage.py createsuperuser --username admin --email admin@school.com

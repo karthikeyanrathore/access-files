@@ -2,8 +2,6 @@ from django.contrib import admin
 from file_system.models import Project, File
 
 
-# Register your models here.
-
 class FileSystemAdmin(admin.ModelAdmin):
     list_display = ("filename", "author", "project")
 
