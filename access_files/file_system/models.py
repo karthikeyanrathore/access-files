@@ -1,20 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from access_files.settings import CLASS_TYPES
 
 class Project(models.Model):
-
-    # Note: id is automatically created.
-    # https://docs.djangoproject.com/en/5.0/topics/db/models/#quick-example
-    CLASS_TYPES = (
-        ("ITD", "IT documents"),
-        ("SD", "Staff documents"),
-        ("ED", "Exam documents"),
-        ("STD", "Student documents"),
-        # docs received from other schools/companies/organizations.
-        ("EXD", "External documents"),
-        ("MD", "Marketing documents")
-    )
 
     project_name = models.CharField(max_length=40, null=False, blank=False, unique=True)
     project_class = models.CharField(choices=CLASS_TYPES, max_length=30)
@@ -26,7 +14,24 @@ class Project(models.Model):
 
     def __str__(self):
         return f"{self.id}: {self.project_name} / {self.project_class}"
-
+    
+    def serialize(self):
+        out = {}
+        out["id"] = self.id
+        out["project_name"] = self.project_name
+        out["project_class"] = self.project_class
+        out["description"] = self.description
+        out["created_at"] = self.created_at
+        out["updated_at"] = self.updated_at
+        staff = []
+        for user in self.users.all():
+            staff.append({
+                "user_id": user.id, 
+                "username": user.username,
+                "is_superuser": user.is_superuser,
+            })        
+        out["users"] = staff
+        return out
 
 
 class File(models.Model):
@@ -41,7 +46,8 @@ class File(models.Model):
     def __str__(self):
         return f"{self.filename}"
 
-
+    def serialize(self):
+        pass
 
 
 # class FileAccessLog():

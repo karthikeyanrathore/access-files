@@ -26,7 +26,9 @@ SECRET_KEY = 'django-insecure-xovrz(t!g1_-%s5o-^o7in_^abeqdf9cnhw!llr8%w!27^robv
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '0.0.0.0'
+]
 
 
 # Application definition
@@ -149,3 +151,13 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
     'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
 }
+
+
+CLASS_TYPES = (
+    ("ITD", "IT documents"),
+    ("SD", "Staff documents"),
+    ("ED", "Exam documents"),
+    ("STD", "Student documents"),
+    ("EXD", "External documents"),
+    ("MD", "Marketing documents")
+)
