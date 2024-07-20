@@ -9,6 +9,8 @@ from file_system.models import Project
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
+from django.core.exceptions import ObjectDoesNotExist
+
 
 class HealthCheckView(views.APIView):
 
@@ -91,11 +93,58 @@ class ProjectsView(views.APIView):
 
 
 class AssignProjectView(views.APIView):
-    
-    # Note: only superuser can assign a user to a project.
-    def post(self, request, project_id, user_id):
-        pass
+    permission_classes = [IsAuthenticated]
 
+    # Note: only superuser can assign a user to a project.
+    def post(self, request, project_id):
+        token = request.headers["Authorization"][7:]
+        access_token = (AccessToken(token))
+        atoken_user_id = (access_token.get("user_id"))
+        atoken_user = User.objects.get(id=atoken_user_id)
+        
+        if not atoken_user.is_superuser:
+            print("Ok - invalid superuser.")
+            message = "Only superuser can created projects."
+            return Response(
+                data={"error": message},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        payload = self.request.data
+        if "user_id" not in payload.keys():
+            message = "missing user_id in payload"
+            return Response(
+                data={"error": message},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            project = Project.objects.get(id=project_id)
+        except ObjectDoesNotExist:
+            message = "Ok - project does not exists."
+            return Response(
+                data={"error": message},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        try:
+            assigned_user = User.objects.get(id=int(payload.get("user_id")))
+        except ObjectDoesNotExist:
+            message = "Ok - user does not exists."
+            return Response(
+                data={"error": message},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        # print(assigned_user)
+        # TODO: check if user is already assigned or not.
+
+        project.users.add(assigned_user)
+        project.save()
+        # data = project.serialize()
+        print(f"Ok - Assigned user_id: {assigned_user.id} to project_id: {project_id}")
+        return Response(
+            data={"message": "Ok - Assigned user to project."},
+            status=status.HTTP_200_OK
+        )
+        
 
 class PublishFilesView(views.APIView):
 
@@ -108,8 +157,40 @@ class PublishFilesView(views.APIView):
 
 
 class ProjectFilesView(views.APIView):
+    permission_classes = [IsAuthenticated]
 
     # Note: user with right access to project can 
     # view all the files in that project.
     def get(self, request, project_id):
-        pass
+        token = request.headers["Authorization"][7:]
+        access_token = (AccessToken(token))
+        atoken_user_id = (access_token.get("user_id"))
+        atoken_user = User.objects.get(id=atoken_user_id)
+
+        try:
+            project = Project.objects.get(id=project_id)
+        except ObjectDoesNotExist:
+            message = "Ok - project does not exists."
+            return Response(
+                data={"error": message},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if atoken_user.is_superuser:
+            return Response(
+                data={"message": "OK"},
+                status=status.HTTP_200_OK
+            )
+        
+        print(project.files)
+        assigned_users = [int(user.id) for user in project.users.all()]
+        # print(assigned_users)
+        # print(atoken_user_id)
+        if atoken_user_id in assigned_users:
+            return Response(
+                data={"message": "OK."},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            data={"message": "OK."},
+            status=status.HTTP_200_OK
+        )

@@ -25,4 +25,6 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view()),
     path('api/token/refresh', TokenRefreshView.as_view()),
     path('project/',views.ProjectsView.as_view()),
+    path('assign/project/<int:project_id>/', views.AssignProjectView.as_view()),
+    path('project/<int:project_id>/files', views.ProjectFilesView.as_view()),
 ]
