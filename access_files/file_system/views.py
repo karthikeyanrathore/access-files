@@ -4,12 +4,15 @@ from rest_framework import status, views
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth.models import User
 
-from file_system.models import Project
+from file_system.models import Project, File
 
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.decorators import parser_classes
+from rest_framework.parsers import FileUploadParser, MultiPartParser
+
 
 
 class HealthCheckView(views.APIView):
@@ -147,13 +150,66 @@ class AssignProjectView(views.APIView):
         
 
 class PublishFilesView(views.APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser]
 
     # Note: only superuser or user with right access to project
     # can publish files to project.
     # check for any malware in file before savin it in db.
     def post(self, request, project_id):
-        pass
+        token = request.headers["Authorization"][7:]
+        access_token = (AccessToken(token))
+        atoken_user_id = (access_token.get("user_id"))
+        atoken_user = User.objects.get(id=atoken_user_id)
 
+        ## (self.request.data)
+        try:
+            project = Project.objects.get(id=project_id)
+        except ObjectDoesNotExist:
+            message = "Ok - project does not exists."
+            return Response(
+                data={"error": message},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        try:
+            project = Project.objects.get(id=project_id)
+        except ObjectDoesNotExist:
+            message = "Ok - project does not exists."
+            return Response(
+                data={"error": message},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        assigned_users = [int(user.id) for user in project.users.all()]
+        if atoken_user.is_superuser or (atoken_user_id in assigned_users):
+            # publish file
+            files = request.FILES
+            # print(files["file"].read())
+            # TODO encrypt file bytes fernet.
+            try:
+                for k in files.keys():
+                    fbytes = files[k].read()
+                    assert isinstance(fbytes, bytes) == True
+                    f = File(
+                        author=atoken_user,
+                        file_bytes=fbytes,
+                        filename=files[k],
+                        project=project,
+                    )
+                    f.save()
+            except IntegrityError:
+                message  = "filename already exists."
+                return Response(
+                    data={"error": message},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            return Response(
+                data={"message": "Ok - published file."},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            data={"message": "Invalid user - User does not have permission to publish files to project."},
+            status=status.HTTP_403_FORBIDDEN
+        )
 
 
 class ProjectFilesView(views.APIView):
@@ -180,17 +236,28 @@ class ProjectFilesView(views.APIView):
                 data={"message": "OK"},
                 status=status.HTTP_200_OK
             )
-        
-        print(project.files)
+        ret = {}
+        fo = []
+        files = (project.files.all())
+        for file in files:
+            fo.append({"id": file.id, "filename": file.filename, "author": file.author.username})
+        ret["project_class"] = project.project_class
+        ret["project_name"] = project.project_name
+        ret["files"] = fo
         assigned_users = [int(user.id) for user in project.users.all()]
         # print(assigned_users)
         # print(atoken_user_id)
         if atoken_user_id in assigned_users:
             return Response(
-                data={"message": "OK."},
+                data={"message": ret},
                 status=status.HTTP_200_OK
             )
         return Response(
-            data={"message": "OK."},
+            data={"message": f"user_id: {atoken_user_id} does not belong to the project."},
             status=status.HTTP_200_OK
         )
+
+
+
+class DownloadFileView(views.APIView):
+    pass
