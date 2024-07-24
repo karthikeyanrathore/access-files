@@ -183,7 +183,6 @@ class PublishFilesView(views.APIView):
         if atoken_user.is_superuser or (atoken_user_id in assigned_users):
             # publish file
             files = request.FILES
-            # print(files["file"].read())
             # TODO encrypt file bytes fernet.
             try:
                 for k in files.keys():
@@ -231,23 +230,16 @@ class ProjectFilesView(views.APIView):
                 data={"error": message},
                 status=status.HTTP_404_NOT_FOUND,
             )
-        if atoken_user.is_superuser:
-            return Response(
-                data={"message": "OK"},
-                status=status.HTTP_200_OK
-            )
         ret = {}
-        fo = []
+        project_files = []
         files = (project.files.all())
         for file in files:
-            fo.append({"id": file.id, "filename": file.filename, "author": file.author.username})
+            project_files.append({"id": file.id, "filename": file.filename, "author": file.author.username})
         ret["project_class"] = project.project_class
         ret["project_name"] = project.project_name
-        ret["files"] = fo
+        ret["files"] = project_files
         assigned_users = [int(user.id) for user in project.users.all()]
-        # print(assigned_users)
-        # print(atoken_user_id)
-        if atoken_user_id in assigned_users:
+        if atoken_user_id in assigned_users or (atoken_user.is_superuser):
             return Response(
                 data={"message": ret},
                 status=status.HTTP_200_OK

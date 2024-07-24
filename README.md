@@ -58,3 +58,11 @@ access_files-api     | [2024-07-24 13:05:29 +0000] [24] [INFO] Listening at: htt
 access_files-api     | [2024-07-24 13:05:29 +0000] [24] [INFO] Using worker: sync
 access_files-api     | [2024-07-24 13:05:29 +0000] [27] [INFO] Booting worker with pid: 27
 ```
+
+
+## stack
+* django-rest-framework
+* djangorestframework-simplejwt
+* docker/docker-compose
+* nginx
+* gunicorn
