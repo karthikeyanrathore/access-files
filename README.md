@@ -3,31 +3,26 @@
 
 ## How to setup?
 ```
-(env) cf:~/access-files$ python3 access_files/manage.py collectstatic
-
-164 static files copied to '/home/vagrant/access-files/access_files/static'.
-
-(env) cf:~/access-files$ mv access_files/static/ .
-(env) cf:~/access-files$ ls
-access_files  docker-compose.yml  Dockerfile  env  nginx  README.md  requirements.txt  static  wait-for.sh
-
 (env) cf:~/access-files$ docker-compose down -v
-[+] Running 1/0
- ✔ Volume access-files_access_files-db_data  Removed                                                                                                                           0.0s 
-(env) cf:~/access-files$ docker-compose build
-[+] Building 1.7s (14/14) FINISHED  
+[+] Running 2/0
+ ✔ Volume access-files_static_data           Removed                                                                                                                           0.0s 
+ ✔ Volume access-files_access_files-db_data  Removed 
+
+
+ (env) cf:~/access-files$ docker-compose build
+[+] Building 0.8s (13/13) FINISHED      
 
 
 (env) cf:~/access-files$ docker-compose up
-[+] Running 5/5
+[+] Running 6/6
  ✔ Network access-files_access_files-net       Created                                                                                                                         0.1s 
  ✔ Volume "access-files_access_files-db_data"  Created                                                                                                                         0.0s 
+ ✔ Volume "access-files_static_data"           Created                                                                                                                         0.0s 
+ ✔ Container access_files-db                   Created                                                                                                                         0.1s 
  ✔ Container nginx_reverse-proxy               Created                                                                                                                         0.1s 
- ✔ Container access_files-api                  Created                                                                                                                         0.1s 
- ✔ Container access_files-db                   Created 
+ ✔ Container access_files-api                  Created 
 
-
-access_files-api     | postgres is up!
+ access_files-api     | postgres is up!
 access_files-api     | Operations to perform:
 access_files-api     |   Apply all migrations: admin, auth, contenttypes, file_system, sessions
 access_files-api     | Running migrations:
@@ -56,9 +51,10 @@ access_files-api     |   Applying file_system.0005_alter_file_author... OK
 access_files-api     |   Applying file_system.0006_alter_file_file_bytes... OK
 access_files-api     |   Applying file_system.0007_alter_file_file_bytes... OK
 access_files-api     |   Applying sessions.0001_initial... OK
-access_files-api     | [2024-07-24 11:40:08 +0000] [25] [INFO] Starting gunicorn 21.2.0
-access_files-api     | [2024-07-24 11:40:08 +0000] [25] [INFO] Listening at: http://0.0.0.0:8000 (25)
-access_files-api     | [2024-07-24 11:40:08 +0000] [25] [INFO] Using worker: sync
-access_files-api     | [2024-07-24 11:40:08 +0000] [28] [INFO] Booting worker with pid: 28
-
+access_files-api     | 
+access_files-api     | 164 static files copied to '/home/access_files/static'.
+access_files-api     | [2024-07-24 13:05:29 +0000] [24] [INFO] Starting gunicorn 21.2.0
+access_files-api     | [2024-07-24 13:05:29 +0000] [24] [INFO] Listening at: http://0.0.0.0:8000 (24)
+access_files-api     | [2024-07-24 13:05:29 +0000] [24] [INFO] Using worker: sync
+access_files-api     | [2024-07-24 13:05:29 +0000] [27] [INFO] Booting worker with pid: 27
 ```
