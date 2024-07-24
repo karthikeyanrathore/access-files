@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.conf.urls.static import static
+from django.conf import settings
+
 
 from file_system import views
 
@@ -29,3 +32,5 @@ urlpatterns = [
     path('project/<int:project_id>/files', views.ProjectFilesView.as_view()),
     path('project/<int:project_id>/publish_file', views.PublishFilesView.as_view()),
 ]
+
+# urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

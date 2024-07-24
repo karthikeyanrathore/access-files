@@ -16,11 +16,45 @@ services:
       # Persist data that is stored in db after
       # container is shutdown.
       - access_files-db_data:/var/lib/postgresql/data/
-    # networks:
-    #   - access_files-net
-    ports:
-      - 5432:5432
+    networks:
+      - access_files-net
+    # ports:
+    #   - 5432:5432
 
-  
+
+  access_files-api:
+    hostname: access-files-api
+    container_name: access_files-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - access_files-net
+    volumes:
+      - ./static:/static/
+    command: >
+        sh -c "./wait-for.sh access_files-db:5432 -- echo 'postgres is up!' &&
+        cd access_files/ && python3 manage.py migrate && gunicorn access_files.wsgi:application -b 0.0.0.0:8000"
+    # ports:
+    #   - "8000:8000"
+
+
+  nginx_reverse-proxy:
+      container_name: nginx_reverse-proxy
+      image: nginx:1.25.3-alpine
+      restart: always
+      volumes:
+        - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+        - ./static:/static/
+      networks:
+        - access_files-net
+      ports:
+        - "80:80"
+
+    
 volumes:
   access_files-db_data:
+
+networks:
+  access_files-net:
