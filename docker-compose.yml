@@ -31,6 +31,16 @@ services:
     restart: unless-stopped
     networks:
       - access_files-net
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_HOSTNAME=access_files-db
+      - POSTGRES_PORT=5432
+      - SUPERUSER_USERNAME=admin
+      - SUPERUSER_EMAIL=admin@admin.co.in
+      - SUPERUSER_PASSWORD=admin # take it from env.
+      - DEBUG=1
     volumes:
       - static_data:/home/access_files/static/
     command: >

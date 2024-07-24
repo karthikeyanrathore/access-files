@@ -17,9 +17,9 @@ application = get_wsgi_application()
 
 from django.contrib.auth.models import User
 
-SUPERUSER_USERNAME = "admin"
-SUPERUSER_EMAIL = "admin@admin.co.in"
-SUPERUSER_PASSWORD = "admin"
+SUPERUSER_USERNAME = os.environ.get("SUPERUSER_USERNAME", "admin")
+SUPERUSER_EMAIL = os.environ.get("SUPERUSER_EMAIL", "admin@admin.co.in")
+SUPERUSER_PASSWORD = os.environ.get("SUPERUSER_PASSWORD", "admin")
 
 if not User.objects.filter(username=SUPERUSER_USERNAME).exists():
     User.objects.create_superuser(

@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-xovrz(t!g1_-%s5o-^o7in_^abeqdf9cnhw!llr8%w!27^robv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True if bool(int(os.environ.get("DEBUG", 1))) else False
 
 ALLOWED_HOSTS = [
     '0.0.0.0', 'access-files-api', 'localhost', '127.0.0.1'
@@ -79,15 +79,20 @@ WSGI_APPLICATION = 'access_files.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+POSTGRES_USER = os.environ.get("POSTGRES_USER", "postgres")
+POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "postgres")
+POSTGRES_DB = os.environ.get("POSTGRES_DB", "postgres")
+POSTGRES_HOSTNAME = os.environ.get("POSTGRES_HOSTNAME", "postgres")
+POSTGRES_PORT = int(os.environ.get("POSTGRES_PORT", 5432))
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'access_files-db',
-        'PORT': 5432,
+        'NAME': POSTGRES_DB,
+        'USER': POSTGRES_USER,
+        'PASSWORD': POSTGRES_PASSWORD,
+        'HOST': POSTGRES_HOSTNAME,
+        'PORT': POSTGRES_PORT,
     }
 }
 
